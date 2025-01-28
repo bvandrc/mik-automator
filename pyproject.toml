@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mixed-in-key-automator"
+version = "0.2.0"
+description = "Windows automator for Mixed In Key. Known works for MIK versions 10 and 11"
+requires-python = ">= 3.10"
+readme = "README.md"
+authors = [
+    { name = "bvandrc", email = "bvandercar@outlook.com" },
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["black", "pylint", "pyright"]
+
+[project.urls]
+Repository = "https://github.com/bvandrc/mixed-in-key-automator"
+Issues = "https://github.com/bvandrc/mixed-in-key-automator/issues"
+Changelog = "https://github.com/bvandrc/mixed-in-key-automator/blob/main/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["mik_automator*"]
+
+[tool.black]
+line-length = 120
+target-version = ["py310"]
+
+[tool.pyright]
+# Pyright doesn't read .gitignore, so a stale build/ left behind by `pip install .`
+# gets type-checked as a second copy of the source. Setting exclude replaces
+# Pyright's defaults, hence __pycache__ and dotted dirs are restated here.
+exclude = ["build", "dist", "**/__pycache__", "**/.*"]
