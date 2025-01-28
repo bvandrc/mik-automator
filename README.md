@@ -10,6 +10,20 @@ Or add this line to your `requirements.txt`:
 
 `git+https://github.com/bvandrc/mixed-in-key-automator@main`
 
+# Usage
+
+## `mik_automator`
+
+Opens Mixed In Key (or connects to it if it's already open), adds a folder, waits for the analysis to finish, then closes it. The folder has to be under the user dir.
+
+```python
+from mik_automator import mik_automator
+
+mik_automator.run(r"C:\Users\me\Music\DJ Tracks")
+```
+
+It knows the analysis is done once the window closes without asking to confirm.
+
 # Development
 
 ```bash

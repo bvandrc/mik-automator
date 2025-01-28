@@ -36,6 +36,12 @@ CI (`.github/workflows/ci.yml`) runs `Lint` (pylint and pyright, plus black once
 
 The package isn't on PyPI. Consumers (like SD) install it from GitHub's `main`, so a merge to `main` is a release. Bump `version` in `pyproject.toml` and add a `CHANGELOG.md` entry for user-visible changes.
 
+## Architecture
+
+One module in the `mik_automator` package (`src/mik_automator/`), for Mixed In Key on Windows:
+
+- `mik_automator.py` — `run(dir)` opens Mixed In Key (or connects to it), adds `dir`, waits for the analysis to finish, and closes it. It uses pywinauto's UIA backend. The Add Files button has no identifier, so it's clicked at its screen coordinates, scaled from 1920x1080, and the folder is picked by expanding the Browse For Folder tree, which is why `dir` has to be under the user dir. Analysis counts as done once closing the window doesn't bring up a confirmation.
+
 ## Repository layout notes
 
 - `conventions/` — see [Conventions](#conventions) above; imported, not editable in place.

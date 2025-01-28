@@ -11,7 +11,7 @@ readme = "README.md"
 authors = [
     { name = "bvandrc", email = "bvandercar@outlook.com" },
 ]
-dependencies = []
+dependencies = ["pywinauto"]
 
 [project.optional-dependencies]
 dev = ["black", "pylint", "pyright"]
