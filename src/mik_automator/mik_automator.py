@@ -9,7 +9,14 @@ import win32con
 import win32gui
 from pywinauto.application import Application, WindowSpecification
 from pywinauto.base_wrapper import BaseWrapper
+from pywinauto.findwindows import find_windows
 from pywinauto.remote_memory_block import RemoteMemoryBlock
+from pywinauto.timings import wait_until
+
+from mik_automator import mik_db
+
+MIK_TITLE_RE = "Mixed In Key.*"
+
 
 root_dir = os.getenv("LOCALAPPDATA")
 assert root_dir, "local appdata"
@@ -30,7 +37,7 @@ def _get_mik_window(create_new_if_not_open: bool):
     for i in range(3):
         try:
             try:
-                app.connect(title_re="Mixed In Key.*")
+                app.connect(title_re=MIK_TITLE_RE)
             except:  # pylint: disable=bare-except
                 if create_new_if_not_open:
                     app.start(exe_file)
@@ -41,10 +48,15 @@ def _get_mik_window(create_new_if_not_open: bool):
             return window, app
         except:  # pylint: disable=bare-except
             if i == 2:
-                logging.error("Could not open MIK")
+                if create_new_if_not_open:  # otherwise, not finding it just means that it closed
+                    logging.error("Could not open MIK")
                 raise
         time.sleep(3)
     raise Exception("Could not open MIK")
+
+
+def _is_mik_open():
+    return len(find_windows(title_re=MIK_TITLE_RE)) > 0
 
 
 def _select_folder(dialog: BaseWrapper, dir: str):
@@ -79,6 +91,23 @@ def _add_folder(window: WindowSpecification, dir: str):
     win32gui.PostMessage(dialog.handle, win32con.WM_COMMAND, win32con.IDOK, 0)
 
 
+def _get_db_state():
+    stat = os.stat(mik_db.db_file)
+    return stat.st_size, stat.st_mtime_ns
+
+
+def _wait_for_db_to_go_quiet(quiet_seconds: int):
+    """Waits until the database stops changing. It's written to as each track finishes, so changes mean it's analyzing."""
+    state = _get_db_state()
+    last_change_time = time.time()
+    while time.time() - last_change_time < quiet_seconds:
+        time.sleep(1)
+        new_state = _get_db_state()
+        if new_state != state:
+            state = new_state
+            last_change_time = time.time()
+
+
 def run(dir: str):
     window, app = _get_mik_window(create_new_if_not_open=True)
     # window.print_control_identifiers()
@@ -100,8 +129,10 @@ def run(dir: str):
     window.child_window(best_match=ADDING_FILES).wait_not("visible", timeout=60 * 5)
     window.child_window(control_type="ProgressBar").wait_not("visible", timeout=60 * 5)
 
-    # Attempt to close. If window closes, analysis done. If confirmation popup appears, is not done.
+    # Attempt to close once the database is quiet. If window closes, analysis done. If confirmation popup appears, a long
+    # analysis is still going, so wait for quiet again.
     while True:
+        _wait_for_db_to_go_quiet(quiet_seconds=20)
         close_button = window.child_window(auto_id="CloseButton")
         close_button.click()
         try:
@@ -113,10 +144,11 @@ def run(dir: str):
         except KeyboardInterrupt:
             input("press any key to continue checking mik")
             break
-        except:  # pylint: disable=bare-except
+        except Exception:  # pylint: disable=broad-exception-caught
+            # No confirmation popup, so it should be closing. Fails if it stays open, rather than leaving it analyzing.
+            wait_until(30, 1, _is_mik_open, False)
             break
         no_button.click()
-        time.sleep(10)
 
 
 if __name__ == "__main__":

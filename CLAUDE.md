@@ -30,7 +30,7 @@ black .                              # format, line-length 120
 
 This is a Python repo with no package manager scripts, so `black .` is the "format script" the conventions require before every commit; CI enforces it with `psf/black@stable`.
 
-There's no test suite: everything here talks to a running Mixed In Key.
+There's no test suite: everything here talks to a running Mixed In Key or its database. Check `mik_db` changes against a copy of `MIKStore.db`, never the real one.
 
 CI (`.github/workflows/ci.yml`) runs `Lint` (pylint and pyright, plus black once) on windows-latest across Python 3.10-3.15. Lint runs on every version because neither tool pins one: both check against the running interpreter, so 3.10 catches use of anything newer and later versions catch deprecations and removals.
 
@@ -38,9 +38,10 @@ The package isn't on PyPI. Consumers (like SD) install it from GitHub's `main`, 
 
 ## Architecture
 
-One module in the `mik_automator` package (`src/mik_automator/`), for Mixed In Key on Windows:
+Two modules in the `mik_automator` package (`src/mik_automator/`), for Mixed In Key 11 on Windows:
 
-- `mik_automator.py` — `run(dir)` opens Mixed In Key (or connects to it), adds `dir`, waits for the analysis to finish, and closes it. It uses pywinauto's UIA backend for the window, and pywin32 window messages where UIA can't reach: the Browse For Folder dialog has no path box, so the folder is selected with `BFFM_SETSELECTIONW`, written into the dialog's process memory. Analysis counts as done once closing the window doesn't bring up a confirmation.
+- `mik_automator.py` — `run(dir)` opens Mixed In Key (or connects to it), adds `dir`, waits for the analysis to finish, and closes it. It uses pywinauto's UIA backend for the window, and pywin32 window messages where UIA can't reach: the Browse For Folder dialog has no path box, so the folder is selected with `BFFM_SETSELECTIONW`, written into the dialog's process memory. Analysis counts as done once the database has stopped changing and closing the window doesn't bring up a confirmation.
+- `mik_db.py` — reads and edits `MIKStore.db` (a SQLite database under `%LOCALAPPDATA%`, path hard-coded to version `11.0`) directly. A song is keyed by its `File` path; `FilePathHash` has to match Mixed In Key's own hash (`get_file_path_hash`), or it won't recognize the song. Reads open the database read-only, so they're safe while Mixed In Key is running.
 
 ## Repository layout notes
 

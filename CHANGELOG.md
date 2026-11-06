@@ -2,6 +2,17 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.0] - 2026-11-06
+
+### Breaking
+
+- Only supports Mixed In Key 11: `run` watches its database to know when the analysis is done
+
+### Features
+
+- Add `mik_db`, which reads and edits Mixed In Key 11's database: `rename_file` points a song at its renamed file so it keeps its analysis, and `remove_files` / `remove_missing_files` remove songs
+- `run` waits for the database to go quiet before closing Mixed In Key, and only counts it as closed once its window is gone
+
 ## [0.3.0] - 2026-11-06
 
 - `run` adds the folder without clicking screen coordinates or expanding the folder tree, so it works for any folder, not only ones under the user dir, at any screen resolution
