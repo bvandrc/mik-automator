@@ -5,7 +5,11 @@ import time
 from pathlib import Path
 import ctypes
 
-from pywinauto.application import Application
+import win32con
+import win32gui
+from pywinauto.application import Application, WindowSpecification
+from pywinauto.base_wrapper import BaseWrapper
+from pywinauto.remote_memory_block import RemoteMemoryBlock
 
 root_dir = os.getenv("LOCALAPPDATA")
 assert root_dir, "local appdata"
@@ -19,27 +23,8 @@ assert len(exe_files) == 1, "more than 1 mik .exe found"
 exe_file = os.path.join(root_dir, exe_files[0])
 
 
-def split_dir(dir: str):
-    return [i for i in dir.split(os.sep) if i]
-
-
-def get_screen_resolution() -> tuple[int, int]:
-    user32 = ctypes.windll.user32
-    return user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
-
-
-resolution = get_screen_resolution()
-
-
-def scale_coords(coords: tuple[int, int], base_resolution: tuple[int, int]):
-    """
-    base_resolution: the resolution that we found the coords on
-    """
-    return int(coords[0] * resolution[0] / base_resolution[0]), int(coords[1] * resolution[1] / base_resolution[1])
-
-
 # Create window (or connect to existing)
-def get_mik_window(create_new_if_not_open: bool):
+def _get_mik_window(create_new_if_not_open: bool):
     app = Application(backend="uia")
 
     for i in range(3):
@@ -62,12 +47,40 @@ def get_mik_window(create_new_if_not_open: bool):
     raise Exception("Could not open MIK")
 
 
-def run(dir: str):
-    USER_DIR = os.path.expanduser("~")
-    if not dir.startswith(USER_DIR):
-        raise NotImplementedError(f"incorrect dir format, must start with user dir ({USER_DIR})")
+def _select_folder(dialog: BaseWrapper, dir: str):
+    """Selects a folder in a Browse For Folder dialog, which has no box to type a path in. The message's path is read
+    by the dialog's process, so it has to be written into that process's memory."""
+    path = ctypes.create_unicode_buffer(dir)
+    memory = RemoteMemoryBlock(dialog, ctypes.sizeof(path))
+    try:
+        memory.Write(path)
+        # 0x0467 is BFFM_SETSELECTIONW, the Windows message that selects a folder. True says it's given a path string.
+        win32gui.SendMessage(dialog.handle, 0x0467, True, memory.Address())
+    finally:
+        memory.CleanUp()
 
-    window, app = get_mik_window(create_new_if_not_open=True)
+
+def _add_folder(window: WindowSpecification, dir: str):
+    # Add Files button has no identifier, so open its dialog with the keyboard shortcut.
+    window.set_focus()
+    window.type_keys("^o")
+
+    # Add Folder button in dialog
+    add_folder_btn = window.child_window(best_match="ADD FOLDERButton")
+    add_folder_btn.click()
+
+    folder_browser_popup = window.child_window(best_match="Browse For Folder")
+    folder_browser_popup.wait("visible", timeout=20)
+    dialog = folder_browser_popup.wrapper_object()
+    _select_folder(dialog, os.path.abspath(dir))
+    time.sleep(1)
+
+    # OK after selected folder.
+    win32gui.PostMessage(dialog.handle, win32con.WM_COMMAND, win32con.IDOK, 0)
+
+
+def run(dir: str):
+    window, app = _get_mik_window(create_new_if_not_open=True)
     # window.print_control_identifiers()
 
     # Maximize window to make coordinate clicking consistent.
@@ -79,49 +92,7 @@ def run(dir: str):
 
     window.child_window(control_type="ProgressBar").wait_not("visible", timeout=60 * 5)
 
-    # Add Files button-- cannot find an identifier, have to just click coords
-    window.click_input(coords=scale_coords(coords=(111, 325), base_resolution=(1920, 1080)))
-    # Add Folder button in dialog
-    add_folder_btn = window.child_window(best_match="ADD FOLDERButton")
-    add_folder_btn.click()
-
-    # Folder tree
-    tree = window.Pane.TreeView
-
-    def expand_nodes(originally_visible_nodes: list[str], remaining_nodes: list[str]):
-        node = tree.get_item(originally_visible_nodes, False)
-        node.ensure_visible()
-        node.click_input()
-        time.sleep(1)
-        for node_str in remaining_nodes[:-1]:
-            node = node.get_child(node_str)
-            node.ensure_visible()
-            node.click_input()
-            time.sleep(1)
-        node = node.get_child(remaining_nodes[-1])
-        node.select()
-        time.sleep(2)
-
-    is_in_user_dir = False
-    for user_dir in ["Music", "Downloads", "Documents"]:
-        user_dir_long = f"{USER_DIR}\\{user_dir}"
-        if user_dir_long in dir:
-            is_in_user_dir = True
-            expand_nodes(
-                originally_visible_nodes=["Desktop", user_dir],
-                remaining_nodes=split_dir(dir.split(user_dir_long, 1)[1]),
-            )
-            break
-    if not is_in_user_dir:
-        expand_nodes(
-            originally_visible_nodes=["Desktop", "This PC"],
-            remaining_nodes=split_dir(os.path.abspath(dir)),
-        )
-
-    # OK after selected folder
-    folder_browser_popup = window.child_window(best_match="Browse For Folder")
-    ok_btn = folder_browser_popup.child_window(best_match="OK Button")
-    ok_btn.click_input()
+    _add_folder(window, dir)
 
     # Wait for files to be added
     ADDING_FILES = "Adding files to queue"
@@ -136,7 +107,7 @@ def run(dir: str):
         try:
             # Window item gets all weird here, sometimes can't find the NO button. Re-connect to the window.
             del app
-            window, app = get_mik_window(create_new_if_not_open=False)
+            window, app = _get_mik_window(create_new_if_not_open=False)
             no_button = window.child_window(best_match="NOButton")
             no_button.wait("visible", timeout=5)
         except KeyboardInterrupt:

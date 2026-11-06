@@ -40,7 +40,7 @@ The package isn't on PyPI. Consumers (like SD) install it from GitHub's `main`, 
 
 One module in the `mik_automator` package (`src/mik_automator/`), for Mixed In Key on Windows:
 
-- `mik_automator.py` — `run(dir)` opens Mixed In Key (or connects to it), adds `dir`, waits for the analysis to finish, and closes it. It uses pywinauto's UIA backend. The Add Files button has no identifier, so it's clicked at its screen coordinates, scaled from 1920x1080, and the folder is picked by expanding the Browse For Folder tree, which is why `dir` has to be under the user dir. Analysis counts as done once closing the window doesn't bring up a confirmation.
+- `mik_automator.py` — `run(dir)` opens Mixed In Key (or connects to it), adds `dir`, waits for the analysis to finish, and closes it. It uses pywinauto's UIA backend for the window, and pywin32 window messages where UIA can't reach: the Browse For Folder dialog has no path box, so the folder is selected with `BFFM_SETSELECTIONW`, written into the dialog's process memory. Analysis counts as done once closing the window doesn't bring up a confirmation.
 
 ## Repository layout notes
 

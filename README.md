@@ -14,7 +14,7 @@ Or add this line to your `requirements.txt`:
 
 ## `mik_automator`
 
-Opens Mixed In Key (or connects to it if it's already open), adds a folder, waits for the analysis to finish, then closes it. The folder has to be under the user dir.
+Opens Mixed In Key (or connects to it if it's already open), adds a folder, waits for the analysis to finish, then closes it.
 
 ```python
 from mik_automator import mik_automator
