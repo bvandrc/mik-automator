@@ -1,15 +1,26 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mixed-in-key-automator"
-version = "1.0.1"
+name = "mik-automator"
+version = "1.1.0"
 description = "Windows automator and database tools for Mixed In Key 11"
 requires-python = ">= 3.10"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "bvandrc", email = "bvandercar@outlook.com" },
+]
+keywords = ["mixed in key", "mixedinkey", "mik", "dj", "key detection", "harmonic mixing", "automation"]
+classifiers = [
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
 ]
 # Windows only: pywinauto drives the app through UI Automation, and pywin32 sends it window messages
 dependencies = ["pywinauto", "pywin32", "comtypes"]
@@ -18,9 +29,9 @@ dependencies = ["pywinauto", "pywin32", "comtypes"]
 dev = ["black", "pylint", "pyright"]
 
 [project.urls]
-Repository = "https://github.com/bvandrc/mixed-in-key-automator"
-Issues = "https://github.com/bvandrc/mixed-in-key-automator/issues"
-Changelog = "https://github.com/bvandrc/mixed-in-key-automator/blob/main/CHANGELOG.md"
+Repository = "https://github.com/bvandrc/mik-automator"
+Issues = "https://github.com/bvandrc/mik-automator/issues"
+Changelog = "https://github.com/bvandrc/mik-automator/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]

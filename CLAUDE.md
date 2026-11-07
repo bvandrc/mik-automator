@@ -34,7 +34,9 @@ There's no test suite: everything here talks to a running Mixed In Key or its da
 
 CI (`.github/workflows/ci.yml`) runs `Lint` (pylint and pyright, plus black once) on windows-latest across Python 3.10-3.15. Lint runs on every version because neither tool pins one: both check against the running interpreter, so 3.10 catches use of anything newer and later versions catch deprecations and removals.
 
-The package isn't on PyPI. Consumers (like SD) install it from GitHub's `main`, so a merge to `main` is a release. Bump `version` in `pyproject.toml` and add a `CHANGELOG.md` entry for user-visible changes.
+The package is on PyPI as `mik-automator` (it was `mixed-in-key-automator`, installed from GitHub, up to 1.0.1); the import package is still `mik_automator`. A merge to `main` isn't a release on its own. To release, bump `version` in `pyproject.toml`, add a `CHANGELOG.md` entry for user-visible changes, merge, then tag that commit `v<version>` and push the tag. The tag push runs `Publish` (`.github/workflows/publish.yml`), which checks the tag matches the version, builds, and uploads to PyPI through trusted publishing, so the repo holds no PyPI token.
+
+PyPI never accepts the same version twice, even after a release is deleted, so a bad upload means a new version.
 
 ## Architecture
 

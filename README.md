@@ -2,13 +2,13 @@ Windows automator and database tools for Mixed In Key 11.
 
 # Installation
 
-Can install using pip:
+```bash
+pip install mik-automator
+```
 
-`pip install git+https://github.com/bvandrc/mixed-in-key-automator@main`
+Windows only, Python 3.10+.
 
-Or add this line to your `requirements.txt`:
-
-`git+https://github.com/bvandrc/mixed-in-key-automator@main`
+If you installed it from GitHub as `mixed-in-key-automator`, uninstall that first (`pip uninstall mixed-in-key-automator`): both install the `mik_automator` package, so keeping both leaves them overwriting each other's files.
 
 # Usage
 
@@ -43,3 +43,7 @@ pip install -e ".[dev]"
 ```
 
 Lint with `pylint $(git ls-files '*.py')` and `pyright`, and format with `black .`. CI runs all three on pull requests.
+
+# License
+
+[MIT](LICENSE)
