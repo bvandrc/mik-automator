@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mixed-in-key-automator"
-version = "1.0.0"
+version = "1.0.1"
 description = "Windows automator and database tools for Mixed In Key 11"
 requires-python = ">= 3.10"
 readme = "README.md"
@@ -12,7 +12,7 @@ authors = [
     { name = "bvandrc", email = "bvandercar@outlook.com" },
 ]
 # Windows only: pywinauto drives the app through UI Automation, and pywin32 sends it window messages
-dependencies = ["pywinauto", "pywin32"]
+dependencies = ["pywinauto", "pywin32", "comtypes"]
 
 [project.optional-dependencies]
 dev = ["black", "pylint", "pyright"]

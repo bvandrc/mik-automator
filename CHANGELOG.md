@@ -2,6 +2,11 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.1] - 2026-11-06
+
+- Don't crash when the "Adding files to queue" popup is gone before it's checked, or when a control errors as it closes
+- Importing the package no longer looks up Mixed In Key's exe
+
 ## [1.0.0] - 2026-11-06
 
 ### Breaking

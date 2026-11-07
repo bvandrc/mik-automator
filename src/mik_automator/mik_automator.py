@@ -4,30 +4,33 @@ import os
 import time
 from pathlib import Path
 import ctypes
+from typing import Callable
 
 import win32con
 import win32gui
+from comtypes import COMError
 from pywinauto.application import Application, WindowSpecification
 from pywinauto.base_wrapper import BaseWrapper
 from pywinauto.findwindows import find_windows
 from pywinauto.remote_memory_block import RemoteMemoryBlock
-from pywinauto.timings import wait_until
+from pywinauto.timings import TimeoutError as WaitTimeoutError, wait_until, wait_until_passes
 
 from mik_automator import mik_db
 
 MIK_TITLE_RE = "Mixed In Key.*"
 
 
-root_dir = os.getenv("LOCALAPPDATA")
-assert root_dir, "local appdata"
-exe_files = glob.glob(
-    "Programs/Mixed In Key/Mixed In Key*/MixedInKey.exe",
-    root_dir=root_dir,
-    recursive=True,
-)
-assert len(exe_files) != 0, "mik .exe not found"
-assert len(exe_files) == 1, "more than 1 mik .exe found"
-exe_file = os.path.join(root_dir, exe_files[0])
+def _get_exe_file():
+    root_dir = os.getenv("LOCALAPPDATA")
+    assert root_dir, "local appdata"
+    exe_files = glob.glob(
+        "Programs/Mixed In Key/Mixed In Key*/MixedInKey.exe",
+        root_dir=root_dir,
+        recursive=True,
+    )
+    assert len(exe_files) != 0, "mik .exe not found"
+    assert len(exe_files) == 1, "more than 1 mik .exe found"
+    return os.path.join(root_dir, exe_files[0])
 
 
 # Create window (or connect to existing)
@@ -40,7 +43,7 @@ def _get_mik_window(create_new_if_not_open: bool):
                 app.connect(title_re=MIK_TITLE_RE)
             except:  # pylint: disable=bare-except
                 if create_new_if_not_open:
-                    app.start(exe_file)
+                    app.start(_get_exe_file())
 
             window = app.top_window()
             window.wait("ready", timeout=20)
@@ -91,6 +94,21 @@ def _add_folder(window: WindowSpecification, dir: str):
     win32gui.PostMessage(dialog.handle, win32con.WM_COMMAND, win32con.IDOK, 0)
 
 
+def _retry_on_com_error(wait: Callable[[], object]):
+    """Runs a wait on the window, again if it fails with a COMError, which reading a control as it closes can raise."""
+    wait_until_passes(60 * 5, 1, wait, COMError)
+
+
+def _wait_for_files_added(window: WindowSpecification):
+    adding_files = window.child_window(best_match="Adding files to queue")
+    try:
+        _retry_on_com_error(lambda: adding_files.wait("visible", timeout=30))
+    except WaitTimeoutError:
+        pass  # a quick add's popup can be gone before we look
+    _retry_on_com_error(lambda: adding_files.wait_not("visible", timeout=60 * 5))
+    _retry_on_com_error(lambda: window.child_window(control_type="ProgressBar").wait_not("visible", timeout=60 * 5))
+
+
 def _get_db_state():
     stat = os.stat(mik_db.db_file)
     return stat.st_size, stat.st_mtime_ns
@@ -122,12 +140,7 @@ def run(dir: str):
     window.child_window(control_type="ProgressBar").wait_not("visible", timeout=60 * 5)
 
     _add_folder(window, dir)
-
-    # Wait for files to be added
-    ADDING_FILES = "Adding files to queue"
-    window.child_window(best_match=ADDING_FILES).wait("visible", timeout=60 * 5)
-    window.child_window(best_match=ADDING_FILES).wait_not("visible", timeout=60 * 5)
-    window.child_window(control_type="ProgressBar").wait_not("visible", timeout=60 * 5)
+    _wait_for_files_added(window)
 
     # Attempt to close once the database is quiet. If window closes, analysis done. If confirmation popup appears, a long
     # analysis is still going, so wait for quiet again.
