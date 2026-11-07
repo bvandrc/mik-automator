@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,6 +8,8 @@ version = "1.1.0"
 description = "Windows automator and database tools for Mixed In Key 11"
 requires-python = ">= 3.10"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "bvandrc", email = "bvandercar@outlook.com" },
 ]
@@ -24,7 +26,7 @@ classifiers = [
 dependencies = ["pywinauto", "pywin32", "comtypes"]
 
 [project.optional-dependencies]
-dev = ["black", "pylint", "pyright", "build", "twine"]
+dev = ["black", "pylint", "pyright"]
 
 [project.urls]
 Repository = "https://github.com/bvandrc/mik-automator"
