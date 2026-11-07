@@ -2,6 +2,10 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.0] - 2026-11-07
+
+- Published to PyPI as `mik-automator`: install with `pip install mik-automator`. It was `mixed-in-key-automator`, installed from GitHub; uninstall that first, since both install the `mik_automator` package. Imports don't change.
+
 ## [1.0.1] - 2026-11-06
 
 - Don't crash when the "Adding files to queue" popup is gone before it's checked, or when a control errors as it closes
