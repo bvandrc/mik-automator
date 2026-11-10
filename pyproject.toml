@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "mik-automator"
 version = "1.1.0"
 description = "Windows automator and database tools for Mixed In Key 11"
-requires-python = ">= 3.10"
+requires-python = ">= 3.11"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -39,7 +39,7 @@ include = ["mik_automator*"]
 
 [tool.black]
 line-length = 120
-target-version = ["py310"]
+target-version = ["py311"]
 
 [tool.pyright]
 # Pyright doesn't read .gitignore, so a stale build/ left behind by `pip install .`
