@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # on every Python version, since pylint and pyright check against the running one (3.10 catches use of anything newer,
+  # on every Python version, since pylint and pyright check against the running one (3.11 catches use of anything newer,
   # later versions catch deprecations and removals). On Windows, since pywin32 only installs there.
   lint:
     name: "Lint (${{ matrix.python-version }})"
@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
+        python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
     defaults:
       run:
         shell: bash
@@ -44,5 +44,5 @@ jobs:
 
     # black's output doesn't depend on the Python version
     - name: Format Check (Black)
-      if: matrix.python-version == '3.10'
+      if: matrix.python-version == '3.11'
       uses: psf/black@stable
