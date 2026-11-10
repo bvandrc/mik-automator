@@ -26,7 +26,7 @@ classifiers = [
 dependencies = ["pywinauto", "pywin32", "comtypes"]
 
 [project.optional-dependencies]
-dev = ["black", "pylint", "pyright"]
+dev = ["black", "isort", "pylint", "pyright"]
 
 [project.urls]
 Repository = "https://github.com/bvandrc/mik-automator"
@@ -40,6 +40,13 @@ include = ["mik_automator*"]
 [tool.black]
 line-length = 120
 target-version = ["py311"]
+
+# Groups the imports into the standard library, third-party packages, and this repo's modules, each sorted.
+[tool.isort]
+profile = "black"
+line_length = 120
+known_first_party = ["mik_automator"]
+combine_as_imports = true
 
 [tool.pyright]
 # Pyright doesn't read .gitignore, so a stale build/ left behind by `pip install .`
