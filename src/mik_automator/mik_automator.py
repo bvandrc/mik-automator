@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 import ctypes
 from typing import Callable
+
 # where comtypes gets it from: comtypes re-exports it, but from 1.5.0 pyright counts that as private
 from _ctypes import COMError
 
