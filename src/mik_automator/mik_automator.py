@@ -5,10 +5,11 @@ import time
 from pathlib import Path
 import ctypes
 from typing import Callable
+# where comtypes gets it from: comtypes re-exports it, but from 1.5.0 pyright counts that as private
+from _ctypes import COMError
 
 import win32con
 import win32gui
-from comtypes import COMError
 from pywinauto.application import Application, WindowSpecification
 from pywinauto.base_wrapper import BaseWrapper
 from pywinauto.findwindows import find_windows
