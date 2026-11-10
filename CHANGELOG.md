@@ -2,6 +2,10 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+- Requires Python 3.11+: 3.10 is end of life
+
 ## [1.1.0] - 2026-11-07
 
 - Published to PyPI as `mik-automator`: install with `pip install mik-automator`. It was `mixed-in-key-automator`, installed from GitHub; uninstall that first, since both install the `mik_automator` package. Imports don't change.

@@ -6,7 +6,7 @@ Windows automator and database tools for Mixed In Key 11.
 pip install mik-automator
 ```
 
-Windows only, Python 3.10+.
+Windows only, Python 3.11+.
 
 If you installed it from GitHub as `mixed-in-key-automator`, uninstall that first (`pip uninstall mixed-in-key-automator`): both install the `mik_automator` package, so keeping both leaves them overwriting each other's files.
 
