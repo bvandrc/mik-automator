@@ -42,7 +42,7 @@ source .venv/Scripts/activate
 pip install -e ".[dev]"
 ```
 
-Lint with `pylint $(git ls-files '*.py')` and `pyright`, and format with `black .`. CI runs all three on pull requests.
+Lint with `pylint $(git ls-files '*.py')` and `pyright`, and format with `isort .` then `black .`. CI checks all four on pull requests.
 
 # License
 
