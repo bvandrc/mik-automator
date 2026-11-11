@@ -37,6 +37,8 @@ CI (`.github/workflows/ci.yml`) runs `Lint` (pylint and pyright, plus isort and 
 
 The package is on PyPI as `mik-automator` (it was `mixed-in-key-automator`, installed from GitHub, up to 1.0.1); the import package is still `mik_automator`. A merge to `main` isn't a release on its own. To release, bump `version` in `pyproject.toml`, add a `CHANGELOG.md` entry for user-visible changes, merge, then publish a GitHub release tagged `v<version>` (e.g. `gh release create v1.2.0 --title v1.2.0 --notes ""`). Publishing it runs `Release` (`.github/workflows/release.yml`), which checks the tag matches the version, builds, and uploads to PyPI through trusted publishing, so the repo holds no PyPI token. A release published with empty notes gets the version's `CHANGELOG.md` section as its notes, and the built distributions are attached to it. PyPI's trusted publisher names that workflow file and its `pypi` environment, so renaming either means updating it on PyPI too.
 
+End every sentence of a changelog entry with a period, the last one included, so an entry of two sentences doesn't end one with a period and not the other.
+
 PyPI never accepts the same version twice, even after a release is deleted, so a bad upload means a new version.
 
 ## Architecture
