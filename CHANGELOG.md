@@ -5,6 +5,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 - Requires Python 3.11+: 3.10 is end of life
+- `mik_db.remove_files` takes any collection of paths, such as a set or tuple, not just a list
 
 ## [1.1.0] - 2026-11-07
 
