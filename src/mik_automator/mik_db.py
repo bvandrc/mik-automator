@@ -2,6 +2,7 @@ import glob
 import hashlib
 import os
 import sqlite3
+from collections.abc import Collection
 from contextlib import closing, contextmanager
 from pathlib import Path
 from typing import TypedDict
@@ -74,7 +75,7 @@ def rename_file(src: str, dest: str, names: ArtistTitle | None = None) -> bool:
     return True
 
 
-def remove_files(filepaths: list[str]):
+def remove_files(filepaths: Collection[str]):
     if len(filepaths) == 0:
         return
     with connect() as connection:
