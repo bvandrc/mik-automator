@@ -37,3 +37,10 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [0.2.0] - 2025-05-06
 
 - `run` opens Mixed In Key, adds a folder under the user dir through its Add Files dialog, waits for the analysis to finish, and closes it.
+
+[Unreleased]: https://github.com/bvandrc/mik-automator/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/bvandrc/mik-automator/compare/v1.0.1...v1.1.0
+[1.0.1]: https://github.com/bvandrc/mik-automator/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/bvandrc/mik-automator/compare/v0.3.0...v1.0.0
+[0.3.0]: https://github.com/bvandrc/mik-automator/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/bvandrc/mik-automator/releases/tag/v0.2.0
