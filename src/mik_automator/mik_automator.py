@@ -1,3 +1,4 @@
+import contextlib
 import ctypes
 import glob
 import logging
@@ -6,8 +7,8 @@ import time
 
 # where comtypes gets it from: comtypes re-exports it, but from 1.5.0 pyright counts that as private
 from _ctypes import COMError
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 import win32con
 import win32gui
@@ -20,6 +21,8 @@ from pywinauto.timings import TimeoutError as WaitTimeoutError, wait_until, wait
 from mik_automator import mik_db
 
 MIK_TITLE_RE = "Mixed In Key.*"
+
+_logger = logging.getLogger(__name__)
 
 
 def _get_exe_file():
@@ -43,21 +46,22 @@ def _get_mik_window(create_new_if_not_open: bool):
         try:
             try:
                 app.connect(title_re=MIK_TITLE_RE)
-            except:  # pylint: disable=bare-except
+            except Exception:  # noqa: BLE001  # whatever stops it connecting, it isn't open to connect to
                 if create_new_if_not_open:
                     app.start(_get_exe_file())
 
             window = app.top_window()
             window.wait("ready", timeout=20)
             window.wait("visible", timeout=20)
-            return window, app
-        except:  # pylint: disable=bare-except
+        except Exception:
             if i == 2:
                 if create_new_if_not_open:  # otherwise, not finding it just means that it closed
-                    logging.error("Could not open MIK")
+                    _logger.error("Could not open MIK")  # noqa: TRY400  # re-raised below, with its traceback
                 raise
+        else:
+            return window, app
         time.sleep(3)
-    raise Exception("Could not open MIK")
+    raise RuntimeError("Could not open MIK")
 
 
 def _is_mik_open():
@@ -103,10 +107,9 @@ def _retry_on_com_error(wait: Callable[[], object]):
 
 def _wait_for_files_added(window: WindowSpecification):
     adding_files = window.child_window(best_match="Adding files to queue")
-    try:
+    # a quick add's popup can be gone before we look
+    with contextlib.suppress(WaitTimeoutError):
         _retry_on_com_error(lambda: adding_files.wait("visible", timeout=30))
-    except WaitTimeoutError:
-        pass  # a quick add's popup can be gone before we look
     _retry_on_com_error(lambda: adding_files.wait_not("visible", timeout=60 * 5))
     _retry_on_com_error(lambda: window.child_window(control_type="ProgressBar").wait_not("visible", timeout=60 * 5))
 
@@ -130,14 +133,12 @@ def _wait_for_db_to_go_quiet(quiet_seconds: int):
 
 def run(dir: str):
     window, app = _get_mik_window(create_new_if_not_open=True)
-    # window.print_control_identifiers()
+    # window.print_control_identifiers()  # noqa: ERA001  # lists the controls, to turn back on when one moves
 
-    # Maximize window to make coordinate clicking consistent.
-    try:
+    # Maximize window to make coordinate clicking consistent. Fails if it's already maximized.
+    with contextlib.suppress(Exception):
         maximize_btn = window.child_window(auto_id="MaximizeButton")
         maximize_btn.click()
-    except:  # pylint: disable=bare-except
-        pass  # already maximized
 
     window.child_window(control_type="ProgressBar").wait_not("visible", timeout=60 * 5)
 
@@ -159,7 +160,7 @@ def run(dir: str):
         except KeyboardInterrupt:
             input("press any key to continue checking mik")
             break
-        except Exception:  # pylint: disable=broad-exception-caught
+        except Exception:  # noqa: BLE001  # whichever way finding it fails
             # No confirmation popup, so it should be closing. Fails if it stays open, rather than leaving it analyzing.
             wait_until(30, 1, _is_mik_open, False)
             break

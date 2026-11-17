@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mik-automator"
-version = "1.1.0"
+version = "1.1.1"
 description = "Windows automator and database tools for Mixed In Key 11"
 requires-python = ">= 3.11"
 readme = "README.md"
@@ -26,7 +26,8 @@ classifiers = [
 dependencies = ["pywinauto", "pywin32", "comtypes"]
 
 [project.optional-dependencies]
-dev = ["black", "isort", "pylint", "pyright"]
+# Ruff up to its next minor version, since a minor release can add stable rules and change its formatting
+dev = ["ruff>=0.17,<0.18", "pyright"]
 
 [project.urls]
 Repository = "https://github.com/bvandrc/mik-automator"
@@ -37,16 +38,42 @@ Changelog = "https://github.com/bvandrc/mik-automator/blob/main/CHANGELOG.md"
 where = ["src"]
 include = ["mik_automator*"]
 
-[tool.black]
+[tool.ruff]
 line-length = 120
-target-version = ["py311"]
+
+[tool.ruff.lint]
+# Every stable rule, less those below. A Ruff minor release can add stable rules, which only reach CI through a PR
+# that bumps the pinned Ruff, so each one gets a decision there.
+select = ["ALL"]
+ignore = [
+    # whole families that don't fit this codebase
+    "ANN",  # type annotations everywhere: pyright checks the types
+    "D",  # docstring style: the docstrings follow conventions/all.md
+    "PTH",  # pathlib: the API takes str paths, and the code passes them to os.path and glob
+    "FBT",  # boolean positional arguments, like pywin32's SendMessage takes
+    "EM",  # exception messages assigned to a variable before raising
+    "CPY",  # copyright notices
+    "TD",  # TODO comment format
+    "FIX",  # TODO comments
+    "C90",  # complexity limits
+    "N",  # naming
+    "COM",  # trailing commas: the formatter adds them, and COM812 conflicts with it
+    "ISC001",  # implicitly concatenated strings on one line: conflicts with the formatter
+    "A",  # names that shadow builtins: `dir` is a parameter of the public run(dir), so renaming it would break callers
+    # single rules, in families that are otherwise on
+    "S101",  # assert: the code asserts its own assumptions, like that %LOCALAPPDATA% is set
+    "TRY003",  # long exception messages: the messages say what went wrong
+    "E501",  # line length: the formatter wraps code, and what's left is long strings
+    "PLR2004",  # magic values
+    "PLR09",  # too many branches, arguments, or statements
+    "TC006",  # quoting the type in cast()
+    "T201",  # print: each module's __main__ block prints what it did
+]
 
 # Groups the imports into the standard library, third-party packages, and this repo's modules, each sorted.
-[tool.isort]
-profile = "black"
-line_length = 120
-known_first_party = ["mik_automator"]
-combine_as_imports = true
+[tool.ruff.lint.isort]
+known-first-party = ["mik_automator"]
+combine-as-imports = true
 
 [tool.pyright]
 # Pyright doesn't read .gitignore, so a stale build/ left behind by `pip install .`
