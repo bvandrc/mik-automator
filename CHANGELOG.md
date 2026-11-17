@@ -2,10 +2,12 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.1.1] - 2026-11-17
 
 - Requires Python 3.11+: 3.10 is end of life.
 - `mik_db.remove_files` takes any collection of paths, such as a set or tuple, not just a list.
+- `run` no longer catches Ctrl+C while it opens or maximizes Mixed In Key.
+- `run` logs through the `mik_automator.mik_automator` logger, not the root logger.
 
 ## [1.1.0] - 2026-11-07
 
@@ -38,7 +40,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `run` opens Mixed In Key, adds a folder under the user dir through its Add Files dialog, waits for the analysis to finish, and closes it.
 
-[Unreleased]: https://github.com/bvandrc/mik-automator/compare/v1.1.0...HEAD
+[1.1.1]: https://github.com/bvandrc/mik-automator/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/bvandrc/mik-automator/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/bvandrc/mik-automator/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/bvandrc/mik-automator/compare/v0.3.0...v1.0.0
