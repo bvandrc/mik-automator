@@ -44,6 +44,7 @@ The package is on PyPI as `mik-automator`. Up to 1.0.1 it was `mixed-in-key-auto
 - **Publish:** it uploads to PyPI through trusted publishing, so the repo holds no PyPI token, and attaches the built distributions to the release. PyPI's trusted publisher names that workflow file and its `pypi` environment, so renaming either means updating it on PyPI too.
 - **Shared steps:** its build and release-notes steps are shared actions from [bvandrc-conventions](https://github.com/bvandrc/bvandrc-conventions) (`.github/actions/`), used from `main`, so change them there. Only the publish step stays in this file, since PyPI's trusted publishing matches the workflow file that runs it.
 - **Versions are final:** PyPI never accepts the same version twice, even after a release is deleted, so a bad upload means a new version.
+- **Rewording past entries:** releases don't follow later changes to their `CHANGELOG.md` section. Running the `Sync Release Notes` workflow (`.github/workflows/sync-release-notes.yml`, built from bvandrc-conventions' shared `sync-release-notes` action, so change it there) rewrites every release's notes as its section.
 
 **Changelog entries:**
 - **Sentences:** end every sentence of an entry with a period, the last one included, so an entry of two sentences doesn't end one with a period and not the other.
