@@ -36,9 +36,7 @@ CI (`.github/workflows/ci.yml`) runs `Lint` (pyright, plus Ruff's lint and forma
 
 The package is on PyPI as `mik-automator`. Up to 1.0.1 it was `mixed-in-key-automator`, installed from GitHub; the import package is still `mik_automator`.
 
-Releasing and the changelog follow `pypi-publishing.md`. Specific to this repo:
-- **Trusted publisher:** PyPI's names `release.yml` and its `pypi` environment, so renaming either means updating it on PyPI too.
-- **Unreleased:** changes not yet released go under `## [Unreleased]`, which a release renames to the version.
+Releasing and the changelog follow `pypi-publishing.md`. Changes not yet released go under `## [Unreleased]`, which a release renames to the version.
 
 ## Architecture
 
