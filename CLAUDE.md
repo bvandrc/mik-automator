@@ -19,21 +19,22 @@ Work in the repo's `.venv` (gitignored), with the package installed editable so 
 ```bash
 python -m venv .venv
 source .venv/Scripts/activate        # Git Bash on Windows
-pip install -e ".[dev]"              # dependencies + black, isort, pylint, pyright
+pip install -e ".[dev]"              # dependencies + ruff, pyright
 ```
 
 ```bash
-pylint $(git ls-files '*.py')        # lint (config in .pylintrc, most C/R checks disabled)
 pyright                              # type check (config in pyproject.toml)
-isort .                              # sort imports (config in pyproject.toml)
-black .                              # format, line-length 120
+ruff check --fix .                   # lint, and sort imports (config in pyproject.toml)
+ruff format .                        # format, line-length 120
 ```
 
-This is a Python repo with no package manager scripts, so `isort .` then `black .` is the "format script" the conventions require before every commit; CI checks both.
+This is a Python repo with no package manager scripts, so `ruff check --fix .` then `ruff format .` is the "format script" the conventions require before every commit; CI checks both.
 
 There's no test suite: everything here talks to a running Mixed In Key or its database. Check `mik_db` changes against a copy of `MIKStore.db`, never the real one.
 
-CI (`.github/workflows/ci.yml`) runs `Lint` (pylint and pyright, plus isort and black once) on windows-latest across Python 3.11-3.15. Lint runs on every version because neither tool pins one: both check against the running interpreter, so 3.11 catches use of anything newer and later versions catch deprecations and removals.
+CI (`.github/workflows/ci.yml`) runs `Lint` (pyright, plus Ruff's lint and format checks once) on windows-latest across Python 3.11-3.15.
+- **Lint on every version:** pyright checks against the running interpreter, so 3.11 catches use of anything newer and later versions catch deprecations and removals. Ruff checks against `requires-python` instead, so it runs once.
+- **Ruff's rules and version:** `pyproject.toml` selects every stable rule (`ALL`) and ignores, each with its reason, those that don't fit. For a one-off finding that's right as it is, silence it on its line with `# noqa: RULE` and a reason, rather than adding to that list. Ruff is pinned below its next minor version (`ruff>=0.17,<0.18` in the `dev` extra), since only a minor release adds stable rules or changes the formatting. So moving to a new minor version is its own PR, deciding for each new rule whether to fix what it flags or ignore it.
 
 The package is on PyPI as `mik-automator` (it was `mixed-in-key-automator`, installed from GitHub, up to 1.0.1); the import package is still `mik_automator`. A merge to `main` isn't a release on its own. To release, bump `version` in `pyproject.toml`, add a `CHANGELOG.md` entry for user-visible changes, merge, then publish a GitHub release tagged `v<version>` (e.g. `gh release create v1.2.0 --title v1.2.0 --notes ""`). Publishing it runs `Release` (`.github/workflows/release.yml`), which checks the tag matches the version, builds, and uploads to PyPI through trusted publishing, so the repo holds no PyPI token. A release published with empty notes gets the version's `CHANGELOG.md` section as its notes, and the built distributions are attached to it. PyPI's trusted publisher names that workflow file and its `pypi` environment, so renaming either means updating it on PyPI too.
 

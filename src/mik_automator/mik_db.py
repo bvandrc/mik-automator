@@ -45,7 +45,7 @@ def get_files_missing_from_db(dir: str) -> list[str]:
 def get_file_path_hash(filepath: str, disk_serial: str) -> str:
     """Same as Mixed In Key's: paths are tied to the disk, so they still match if the drive letter changes."""
     id_string = f"{disk_serial}:{filepath.split(':', 1)[1]}" if disk_serial.strip() else filepath
-    return hashlib.md5(id_string.lower().encode("utf-8")).hexdigest().upper()
+    return hashlib.md5(id_string.lower().encode("utf-8"), usedforsecurity=False).hexdigest().upper()
 
 
 def rename_file(src: str, dest: str, names: ArtistTitle | None = None) -> bool:

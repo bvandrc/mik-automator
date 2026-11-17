@@ -6,6 +6,8 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Requires Python 3.11+: 3.10 is end of life
 - `mik_db.remove_files` takes any collection of paths, such as a set or tuple, not just a list
+- `run` no longer catches Ctrl+C while it opens or maximizes Mixed In Key
+- `run` logs through the `mik_automator.mik_automator` logger, not the root logger
 
 ## [1.1.0] - 2026-11-07
 
