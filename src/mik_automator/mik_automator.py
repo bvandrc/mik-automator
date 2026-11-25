@@ -40,10 +40,11 @@ def _get_exe_file():
 
 
 # Create window (or connect to existing)
-def _get_mik_window(create_new_if_not_open: bool):
+def _get_mik_window(*, create_new_if_not_open: bool):
     app = Application(backend="uia")
 
-    for i in range(3):
+    attempts = 3
+    for attempt in range(attempts):
         try:
             try:
                 app.connect(title_re=MIK_TITLE_RE)
@@ -55,7 +56,7 @@ def _get_mik_window(create_new_if_not_open: bool):
             window.wait("ready", timeout=20)
             window.wait("visible", timeout=20)
         except Exception:
-            if i == 2:
+            if attempt == attempts - 1:
                 if create_new_if_not_open:  # otherwise, not finding it just means that it closed
                     _logger.error("Could not open MIK")  # noqa: TRY400  # re-raised below, with its traceback
                 raise
@@ -77,7 +78,7 @@ def _select_folder(dialog: BaseWrapper, dir: str):
     try:
         memory.Write(path)
         # 0x0467 is BFFM_SETSELECTIONW, the Windows message that selects a folder. True says it's given a path string.
-        win32gui.SendMessage(dialog.handle, 0x0467, True, memory.Address())
+        win32gui.SendMessage(dialog.handle, 0x0467, True, memory.Address())  # noqa: FBT003  # it only takes positional arguments
     finally:
         memory.CleanUp()
 
@@ -163,7 +164,7 @@ def run(dir: StrPath):
             break
         except Exception:  # noqa: BLE001  # whichever way finding it fails
             # No confirmation popup, so it should be closing. Fails if it stays open, rather than leaving it analyzing.
-            wait_until(30, 1, _is_mik_open, False)
+            wait_until(30, 1, _is_mik_open, value=False)
             break
         no_button.click()
 

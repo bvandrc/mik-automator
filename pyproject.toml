@@ -50,13 +50,8 @@ ignore = [
     "ANN",  # type annotations everywhere: pyright checks the types
     "D",  # docstring style: the docstrings follow conventions/all.md
     "PTH",  # pathlib: the code works on paths with os.path and glob, which take str and Path alike
-    "FBT",  # boolean positional arguments, like pywin32's SendMessage takes
     "EM",  # exception messages assigned to a variable before raising
     "CPY",  # copyright notices
-    "TD",  # TODO comment format
-    "FIX",  # TODO comments
-    "C90",  # complexity limits
-    "N",  # naming
     "COM",  # trailing commas: the formatter adds them, and COM812 conflicts with it
     "ISC001",  # implicitly concatenated strings on one line: conflicts with the formatter
     "A",  # names that shadow builtins: `dir` is a parameter of the public run(dir), so renaming it would break callers
@@ -64,9 +59,6 @@ ignore = [
     "S101",  # assert: the code asserts its own assumptions, like that %LOCALAPPDATA% is set
     "TRY003",  # long exception messages: the messages say what went wrong
     "E501",  # line length: the formatter wraps code, and what's left is long strings
-    "PLR2004",  # magic values
-    "PLR09",  # too many branches, arguments, or statements
-    "TC006",  # quoting the type in cast()
     "T201",  # print: each module's __main__ block prints what it did
 ]
 
