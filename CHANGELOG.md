@@ -4,7 +4,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-- Functions that take a path take a `Path` as well as a `str`: `run`, and `mik_db`'s `get_files_missing_from_db`, `get_file_path_hash`, `rename_file`, and `remove_files`.
+- All functions that take a path now take a `Path` as well as `str`.
 
 ## [1.1.1] - 2026-11-17
 
