@@ -7,6 +7,8 @@ from contextlib import closing, contextmanager
 from pathlib import Path
 from typing import TypedDict
 
+from mik_automator._types import StrPath
+
 appdata_dir = os.getenv("LOCALAPPDATA")
 assert appdata_dir, "local appdata"
 db_file = os.path.join(appdata_dir, "Mixed In Key", "Mixed In Key", "11.0", "MIKStore.db")
@@ -36,20 +38,20 @@ def get_song_files() -> set[str]:
         return {row[0].lower() for row in connection.execute("SELECT File FROM Song")}
 
 
-def get_files_missing_from_db(dir: str | os.PathLike[str]) -> list[str]:
+def get_files_missing_from_db(dir: StrPath) -> list[str]:
     song_files = get_song_files()
     files = (f for f in glob.iglob(os.path.join(dir, "**", "*"), recursive=True) if os.path.isfile(f))
     return [f for f in files if os.path.splitext(f)[1].lower() in AUDIO_EXTENSIONS and f.lower() not in song_files]
 
 
-def get_file_path_hash(filepath: str | os.PathLike[str], disk_serial: str) -> str:
+def get_file_path_hash(filepath: StrPath, disk_serial: str) -> str:
     """Same as Mixed In Key's: paths are tied to the disk, so they still match if the drive letter changes."""
     filepath = os.fspath(filepath)
     id_string = f"{disk_serial}:{filepath.split(':', 1)[1]}" if disk_serial.strip() else filepath
     return hashlib.md5(id_string.lower().encode("utf-8"), usedforsecurity=False).hexdigest().upper()
 
 
-def rename_file(src: str | os.PathLike[str], dest: str | os.PathLike[str], names: ArtistTitle | None = None) -> bool:
+def rename_file(src: StrPath, dest: StrPath, names: ArtistTitle | None = None) -> bool:
     """Points a song at its renamed file, so it keeps its analysis. Returns whether the song was found.
 
     Pass names when known, since filenames lose characters ("RÜFÜS DU SOL" is "RUFUS DU SOL"). Otherwise they come
@@ -78,7 +80,7 @@ def rename_file(src: str | os.PathLike[str], dest: str | os.PathLike[str], names
     return True
 
 
-def remove_files(filepaths: Collection[str | os.PathLike[str]]):
+def remove_files(filepaths: Collection[StrPath]):
     if len(filepaths) == 0:
         return
     with connect() as connection:
