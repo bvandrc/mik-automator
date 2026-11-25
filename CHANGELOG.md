@@ -2,6 +2,10 @@
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.2.0] - 2026-11-25
+
+- All functions that take a path now take a `Path` as well as `str`.
+
 ## [1.1.1] - 2026-11-17
 
 - Requires Python 3.11+: 3.10 is end of life.
@@ -40,6 +44,7 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `run` opens Mixed In Key, adds a folder under the user dir through its Add Files dialog, waits for the analysis to finish, and closes it.
 
+[1.2.0]: https://github.com/bvandrc/mik-automator/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/bvandrc/mik-automator/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/bvandrc/mik-automator/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/bvandrc/mik-automator/compare/v1.0.0...v1.0.1

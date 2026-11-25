@@ -19,6 +19,7 @@ from pywinauto.remote_memory_block import RemoteMemoryBlock
 from pywinauto.timings import TimeoutError as WaitTimeoutError, wait_until, wait_until_passes
 
 from mik_automator import mik_db
+from mik_automator._types import StrPath
 
 MIK_TITLE_RE = "Mixed In Key.*"
 
@@ -82,7 +83,7 @@ def _select_folder(dialog: BaseWrapper, dir: str):
         memory.CleanUp()
 
 
-def _add_folder(window: WindowSpecification, dir: str):
+def _add_folder(window: WindowSpecification, dir: StrPath):
     # Add Files button has no identifier, so open its dialog with the keyboard shortcut.
     window.set_focus()
     window.type_keys("^o")
@@ -132,7 +133,7 @@ def _wait_for_db_to_go_quiet(quiet_seconds: int):
             last_change_time = time.time()
 
 
-def run(dir: str):
+def run(dir: StrPath):
     window, app = _get_mik_window(create_new_if_not_open=True)
     # window.print_control_identifiers()  # noqa: ERA001  # lists the controls, to turn back on when one moves
 
