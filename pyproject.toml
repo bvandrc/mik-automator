@@ -49,7 +49,7 @@ ignore = [
     # whole families that don't fit this codebase
     "ANN",  # type annotations everywhere: pyright checks the types
     "D",  # docstring style: the docstrings follow conventions/all.md
-    "PTH",  # pathlib: the API takes str paths, and the code passes them to os.path and glob
+    "PTH",  # pathlib: the code works on paths with os.path and glob, which take str and Path alike
     "FBT",  # boolean positional arguments, like pywin32's SendMessage takes
     "EM",  # exception messages assigned to a variable before raising
     "CPY",  # copyright notices

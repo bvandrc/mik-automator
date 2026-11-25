@@ -36,19 +36,20 @@ def get_song_files() -> set[str]:
         return {row[0].lower() for row in connection.execute("SELECT File FROM Song")}
 
 
-def get_files_missing_from_db(dir: str) -> list[str]:
+def get_files_missing_from_db(dir: str | os.PathLike[str]) -> list[str]:
     song_files = get_song_files()
     files = (f for f in glob.iglob(os.path.join(dir, "**", "*"), recursive=True) if os.path.isfile(f))
     return [f for f in files if os.path.splitext(f)[1].lower() in AUDIO_EXTENSIONS and f.lower() not in song_files]
 
 
-def get_file_path_hash(filepath: str, disk_serial: str) -> str:
+def get_file_path_hash(filepath: str | os.PathLike[str], disk_serial: str) -> str:
     """Same as Mixed In Key's: paths are tied to the disk, so they still match if the drive letter changes."""
+    filepath = os.fspath(filepath)
     id_string = f"{disk_serial}:{filepath.split(':', 1)[1]}" if disk_serial.strip() else filepath
     return hashlib.md5(id_string.lower().encode("utf-8"), usedforsecurity=False).hexdigest().upper()
 
 
-def rename_file(src: str, dest: str, names: ArtistTitle | None = None) -> bool:
+def rename_file(src: str | os.PathLike[str], dest: str | os.PathLike[str], names: ArtistTitle | None = None) -> bool:
     """Points a song at its renamed file, so it keeps its analysis. Returns whether the song was found.
 
     Pass names when known, since filenames lose characters ("RÜFÜS DU SOL" is "RUFUS DU SOL"). Otherwise they come
@@ -61,6 +62,8 @@ def rename_file(src: str, dest: str, names: ArtistTitle | None = None) -> bool:
             raise ValueError(f"couldn't parse {filename} as Artist - Title") from e
         names = {"artist": artist, "title": title}
 
+    # sqlite3 only binds str, not Path
+    src, dest = os.fspath(src), os.fspath(dest)
     with connect() as connection:
         row = connection.execute("SELECT DiskSerialNumber FROM Song WHERE File = ?", (src,)).fetchone()
         if row is None:
@@ -75,11 +78,12 @@ def rename_file(src: str, dest: str, names: ArtistTitle | None = None) -> bool:
     return True
 
 
-def remove_files(filepaths: Collection[str]):
+def remove_files(filepaths: Collection[str | os.PathLike[str]]):
     if len(filepaths) == 0:
         return
     with connect() as connection:
-        connection.executemany("DELETE FROM Song WHERE File = ?", [(filepath,) for filepath in filepaths])
+        # sqlite3 only binds str, not Path
+        connection.executemany("DELETE FROM Song WHERE File = ?", [(os.fspath(filepath),) for filepath in filepaths])
 
 
 def remove_missing_files() -> list[str]:
