@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mik-automator"
-version = "1.1.1"
+version = "1.2.0"
 description = "Windows automator and database tools for Mixed In Key 11"
 requires-python = ">= 3.11"
 readme = "README.md"
